@@ -9,3 +9,67 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model University {
+  id Int @id @default(autoincrement())
+  name String
+  shortName String
+  facultys Faculty[]
+}
+
+model Faculty {
+  id Int @id @default(autoincrement())
+  name String
+  shortName String
+  programs StudyProgram[]
+  university University @relation(fields: [universityID], references: [id])
+  universityID Int
+}
+
+model StudyProgram {
+  id Int @id @default(autoincrement())
+  name String
+  shortName String
+  subjects Subject[]
+  faculty Faculty @relation(fields:[facultyID], references: [id])
+  facultyID Int
+}
+
+model Subject {
+  id Int @id @default(autoincrement())
+  name String 
+  ECTSpoints Int
+  semester Int
+  QRCode String
+  lectures Lecture[]
+  exercises Exercise[]
+  studyProgram StudyProgram @relation(fields: [studyProgramID], references: [id])
+  studyProgramID Int
+}
+
+model Lecture {
+  id Int @id @default(autoincrement())
+  name String
+  date DateTime
+  subject Subject @relation(fields: [subjectID], references: [id])
+  subjectID Int
+}
+
+model Exercise {
+  id Int @id @default(autoincrement())
+  name String
+  subject Subject @relation(fields: [subjectID], references: [id])
+  subjectID Int
+}
+
+model Attendance {
+  id Int @id @default(autoincrement())
+  date DateTime
+  type ClassType
+  hoursNumber Int 
+}
+
+enum ClassType {
+  lecture
+  exercise
+}
