@@ -10,6 +10,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Admin {
+  id Int @id @default(autoincrement())
+  firstName String
+  lastName String
+  email String
+  password String
+}
+
 model University {
   id Int @id @default(autoincrement())
   name String
@@ -31,6 +39,7 @@ model StudyProgram {
   name String
   shortName String
   subjects Subject[]
+  students Student[]
   faculty Faculty @relation(fields:[facultyID], references: [id])
   facultyID Int
 }
@@ -43,12 +52,17 @@ model Subject {
   QRCode String
   lectures Lecture[]
   exercises Exercise[]
+  professors JoinProfessorSubject[]
+  asistents JoinAsistentSubject[]
+  students JoinStudentSubject[]
   studyProgram StudyProgram @relation(fields: [studyProgramID], references: [id])
   studyProgramID Int
 }
 
 model Lecture {
   id Int @id @default(autoincrement())
+  attendances Attendance[]
+  professors JoinProfessorLecture[]
   name String
   date DateTime
   subject Subject @relation(fields: [subjectID], references: [id])
@@ -57,19 +71,154 @@ model Lecture {
 
 model Exercise {
   id Int @id @default(autoincrement())
+  attendances Attendance[]
+  asistents JoinAsistentExercise[]
   name String
+  date DateTime
   subject Subject @relation(fields: [subjectID], references: [id])
   subjectID Int
 }
 
 model Attendance {
   id Int @id @default(autoincrement())
+  presence Boolean
   date DateTime
+  QRCode String
   type ClassType
-  hoursNumber Int 
+  hoursNumber Int
+  studentID Int 
+  lectureID Int
+  exerciseID Int
+  student Student @relation(fields: [studentID], references: [id])
+  lecture Lecture @relation(fields: [lectureID], references: [id])
+  exercise Exercise @relation(fields: [exerciseID],references: [id])
 }
 
 enum ClassType {
   lecture
   exercise
+}
+
+model Student {
+  id Int @id @default(autoincrement())
+  attendances Attendance[]
+  subjects JoinStudentSubject[]
+  indexNumber String
+  firstName String
+  lastName String
+  studyYear Int
+  profileImage String
+  email String
+  password String
+  repeater Boolean
+  signature Boolean
+  studyProgram StudyProgram @relation(fields: [studyProgramID], references: [id])
+  studyProgramID Int
+}
+
+model JoinStudentSubject {
+  student Student @relation(fields: [studentID], references: [id])
+  studentID Int
+  subject Subject @relation(fields: [subjectID], references: [id])
+  subjectID Int
+  approved Boolean
+
+  @@id([studentID, subjectID])
+  
+}
+
+model Exam {
+  id Int @id @default(autoincrement())
+  name String
+  type String
+  date DateTime
+  partialExams PartialExam[]
+  examCondition String
+  dificultyFactor Int
+}
+
+model PartialExam {
+  id Int @id @default(autoincrement())
+  name String
+  type String
+  date DateTime
+  examCondition String
+  dificultyFactor Int
+  exam Exam @relation(fields: [examID], references: [id])
+  examID Int
+}
+
+model Professor {
+  id Int @id @default(autoincrement())
+  firstName String
+  lastName String
+  title String
+  profileImage String
+  approved Boolean
+  email String
+  password String
+  subjects JoinProfessorSubject[]
+  lectures JoinProfessorLecture[]
+}
+ 
+model JoinProfessorSubject {
+  professor Professor @relation(fields: [professorID], references: [id])
+  professorID Int
+  subject Subject @relation(fields: [subjectID], references: [id])
+  subjectID Int
+  approved Boolean
+
+  @@id([professorID, subjectID])
+}
+
+model JoinProfessorLecture {
+  professor Professor @relation(fields: [professorID], references: [id])
+  professorID Int
+  lecture Lecture @relation(fields: [lectureID], references: [id])
+  lectureID Int
+  approved Boolean
+
+  @@id([professorID, lectureID])
+}
+
+model Asistent {
+  id Int @id @default(autoincrement())
+  firstName String
+  lastName String
+  title String
+  profileImage String
+  approved Boolean
+  email String
+  password String
+  subjects JoinAsistentSubject[]
+  exercises JoinAsistentExercise[]
+}
+
+model JoinAsistentSubject {
+  asistent Asistent @relation(fields: [asistentID], references: [id])
+  asistentID Int
+  subject Subject @relation(fields: [subjectID], references: [id])
+  subjectID Int
+  approved Boolean
+
+  @@id([asistentID, subjectID])
+}
+
+model JoinAsistentExercise {
+  asistent Asistent @relation(fields: [asistentID],references: [id])
+  asistentID Int
+  exercise Exercise @relation(fields: [exerciseID], references: [id])
+  exerciseID Int
+  approved Boolean
+
+  @@id([asistentID, exerciseID])
+}
+
+model subjectActivity {
+  id Int @id @default(autoincrement())
+  name String
+  type String
+  deadline DateTime
+  score Int
+  dificultyFactor Int
 }
