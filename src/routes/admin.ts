@@ -3,6 +3,8 @@ import express from 'express';
 
 const router = express.Router();
 
+//parent route ->  /api/admin
+
 router.get('/');
 
 export default router;

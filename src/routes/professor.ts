@@ -3,6 +3,8 @@ import express from 'express';
 
 const router = express.Router();
 
+//parent route ->  /api/professor
+
 router.get('/');
 
 export default router;

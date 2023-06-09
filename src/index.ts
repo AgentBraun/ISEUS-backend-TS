@@ -1,6 +1,5 @@
 import env from './utils/validateEnv';
 import express from 'express';
-import { PrismaClient } from '@prisma/client';
 import createHttpError from 'http-errors';
 
 //routes import
@@ -11,7 +10,6 @@ import studentsRoutes from './routes/students';
 const port = env.PORT;
 
 const app = express();
-const prisma = new PrismaClient();
 
 app.use(express.json);
 app.use(express.urlencoded({ extended: true }));

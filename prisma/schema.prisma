@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -52,6 +52,8 @@ model Subject {
   QRCode String
   lectures Lecture[]
   exercises Exercise[]
+  exams Exam[]
+  subjectActivities subjectActivity[]
   professors JoinProfessorSubject[]
   asistents JoinAsistentSubject[]
   students JoinStudentSubject[]
@@ -84,7 +86,7 @@ model Attendance {
   presence Boolean
   date DateTime
   QRCode String
-  type ClassType
+  type String
   hoursNumber Int
   studentID Int 
   lectureID Int
@@ -94,15 +96,13 @@ model Attendance {
   exercise Exercise @relation(fields: [exerciseID],references: [id])
 }
 
-enum ClassType {
-  lecture
-  exercise
-}
-
 model Student {
   id Int @id @default(autoincrement())
   attendances Attendance[]
   subjects JoinStudentSubject[]
+  exams JoinStudentExam[]
+  partialExams JoinStudentPartialExam[]
+  subjectActivities JoinStudentSubjectActivities[]
   indexNumber String
   firstName String
   lastName String
@@ -127,18 +127,51 @@ model JoinStudentSubject {
   
 }
 
+model JoinStudentExam {
+  student Student @relation(fields: [studentID], references: [id])
+  studentID Int
+  exam Exam @relation(fields: [examID], references: [id])
+  examID Int
+
+  @@id([studentID, examID])
+}
+
+model JoinStudentPartialExam {
+  student Student @relation(fields: [studentID], references: [id])
+  studentID Int
+  partialExam PartialExam @relation(fields: [partialExamID], references: [id])
+  partialExamID Int
+
+  @@id([studentID, partialExamID])
+}
+
+model JoinStudentSubjectActivities {
+  student Student @relation(fields: [studentID], references: [id])
+  studentID Int
+  subjectActivities subjectActivity @relation(fields: [subjectActivitiesID], references: [id])
+  subjectActivitiesID Int
+
+  @@id([studentID, subjectActivitiesID])
+}
+
 model Exam {
   id Int @id @default(autoincrement())
   name String
   type String
   date DateTime
   partialExams PartialExam[]
+  asistents JoinAsistentExam[]
+  professors JoinProfessorExam[]
+  students JoinStudentExam[]
   examCondition String
   dificultyFactor Int
+  subject Subject @relation(fields: [subjectID], references: [id])
+  subjectID Int
 }
 
 model PartialExam {
   id Int @id @default(autoincrement())
+  students JoinStudentPartialExam[]
   name String
   type String
   date DateTime
@@ -146,6 +179,18 @@ model PartialExam {
   dificultyFactor Int
   exam Exam @relation(fields: [examID], references: [id])
   examID Int
+}
+
+model subjectActivity {
+  id Int @id @default(autoincrement())
+  students JoinStudentSubjectActivities[]
+  name String
+  type String
+  deadline DateTime
+  score Int
+  dificultyFactor Int
+  subject Subject @relation(fields: [subjectID], references: [id])
+  subjectID Int
 }
 
 model Professor {
@@ -159,6 +204,16 @@ model Professor {
   password String
   subjects JoinProfessorSubject[]
   lectures JoinProfessorLecture[]
+  exams JoinProfessorExam[]
+}
+
+model JoinProfessorExam {
+  professor Professor @relation(fields: [professorID], references: [id])
+  professorID Int
+  exam Exam @relation(fields: [examID], references: [id])
+  examID Int
+
+  @@id([professorID, examID])
 }
  
 model JoinProfessorSubject {
@@ -192,6 +247,7 @@ model Asistent {
   password String
   subjects JoinAsistentSubject[]
   exercises JoinAsistentExercise[]
+  exams JoinAsistentExam[]
 }
 
 model JoinAsistentSubject {
@@ -214,11 +270,12 @@ model JoinAsistentExercise {
   @@id([asistentID, exerciseID])
 }
 
-model subjectActivity {
-  id Int @id @default(autoincrement())
-  name String
-  type String
-  deadline DateTime
-  score Int
-  dificultyFactor Int
+model JoinAsistentExam {
+  asistent Asistent @relation(fields: [asistentID],references: [id])
+  asistentID Int
+  exam Exam @relation(fields: [examID], references: [id])
+  examID Int
+
+  @@id([asistentID, examID])
 }
+
