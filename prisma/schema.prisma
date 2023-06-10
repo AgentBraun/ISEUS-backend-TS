@@ -16,6 +16,24 @@ model Admin {
   lastName String
   email String
   password String
+  posts Post[]
+}
+
+model Post {
+  id Int @id @default(autoincrement())
+  tags Tag[]
+  naslov String
+  text String
+  createdAt DateTime @default(now())
+  admin Admin @relation(fields: [adminID], references: [id])
+  adminID Int
+}
+
+model Tag {
+  id Int @id @default(autoincrement())
+  tag String
+  post Post @relation(fields: [postID], references: [id])
+  postID Int
 }
 
 model University {
