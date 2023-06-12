@@ -5,10 +5,21 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const getNews: RequestHandler = async (req, res, next) => {
-  try {
-    const posts = await prisma.post.findMany();
-    res.json(posts);
-  } catch (error) {
-    next(error);
-  }
+  const posts = await prisma.post.findMany({
+    include: {
+      admin: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
+      tags: {
+        select: {
+          tag: true,
+        },
+      },
+    },
+  });
+
+  res.json(posts);
 };

@@ -1,6 +1,7 @@
-import env from './utils/validateEnv';
+//import env from './utils/validateEnv';
 import express from 'express';
 import createHttpError from 'http-errors';
+import morgan from 'morgan';
 
 //routes import
 import adminRoutes from './routes/admin';
@@ -8,12 +9,10 @@ import professorsRoutes from './routes/professor';
 import studentsRoutes from './routes/students';
 import landingRoutes from './routes/landing';
 
-//const port = env.PORT;
-
 const app = express();
+app.use(morgan('dev'));
 
-app.use(express.json);
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 app.use('/api/landing', landingRoutes);
 app.use('/api/admin', adminRoutes);
